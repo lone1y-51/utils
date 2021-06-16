@@ -43,3 +43,12 @@ func Test_MergeSortInt64(t *testing.T) {
 		t.Errorf("result %v != mergeResult %v", result, mergeResult)
 	}
 }
+
+func Test_QuickSortInt(t *testing.T) {
+	testArr := []int{2, 5, 1, 4, 10, 8, 3}
+	quickResult := QuickSortInt(testArr)
+	result := []int{1, 2, 3, 4, 5, 8, 10}
+	if !arrayEqInt(result, quickResult) {
+		t.Errorf("result %v != mergeResult %v", result, quickResult)
+	}
+}

@@ -66,3 +66,39 @@ func ContainsString(arr []string, target string) bool {
 	}
 	return false
 }
+
+func ArrayIntEq(arrA []int, arrB []int) bool {
+	if len(arrA) != len(arrB) {
+		return false
+	}
+	for index := range arrA {
+		if arrA[index] != arrB[index] {
+			return false
+		}
+	}
+	return true
+}
+
+func ArrayInt64Eq(arrA []int64, arrB []int64) bool {
+	if len(arrA) != len(arrB) {
+		return false
+	}
+	for index := range arrA {
+		if arrA[index] != arrB[index] {
+			return false
+		}
+	}
+	return true
+}
+
+func ArrayStringEq(arrA []string, arrB []string) bool {
+	if len(arrA) != len(arrB) {
+		return false
+	}
+	for index := range arrA {
+		if arrA[index] != arrB[index] {
+			return false
+		}
+	}
+	return true
+}

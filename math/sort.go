@@ -59,3 +59,29 @@ func mergeSortInt64(left []int64, right []int64) []int64 {
 	}
 	return result
 }
+
+func QuickSortInt(arr []int) []int {
+	return quickSortInt(arr, 0, len(arr)-1)
+}
+
+func quickSortInt(arr []int, left, right int) []int {
+	if left < right {
+		partitionIndex := partitionInt(arr, left, right)
+		quickSortInt(arr, left, partitionIndex-1)
+		quickSortInt(arr, partitionIndex+1, right)
+	}
+	return arr
+}
+
+func partitionInt(arr []int, left, right int) int {
+	pivot := left
+	index := pivot + 1
+	for i := index; i <= right; i++ {
+		if arr[i] < arr[pivot] {
+			arr[i], arr[index] = arr[index], arr[i]
+			index++
+		}
+	}
+	arr[pivot], arr[index-1] = arr[index-1], arr[pivot]
+	return index - 1
+}
