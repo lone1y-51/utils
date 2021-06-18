@@ -1,5 +1,7 @@
 package tree
 
+import "fmt"
+
 type Color string
 
 type BRTreeNode struct {
@@ -19,12 +21,27 @@ func (node *BRTreeNode) IsRedNode() bool {
 	return node.Color == Red
 }
 
+func (node *BRTreeNode) ToString() string {
+	result := fmt.Sprintf("%s %d ", node.Color, node.Value)
+	if node.LChildNode != nil {
+		result = result + fmt.Sprintf("[left child %s %d] ", node.LChildNode.Color, node.LChildNode.Value)
+	}
+	if node.RChildNode != nil {
+		result = result + fmt.Sprintf("[right child %s %d] ", node.RChildNode.Color, node.RChildNode.Value)
+	}
+	return result
+}
+
 func (node *BRTreeNode) ChangeToRedNode() {
 	node.Color = Red
 }
 
 func (node *BRTreeNode) ChangeToBlackNode() {
 	node.Color = Black
+}
+
+func (node *BRTreeNode) IsRoot() bool {
+	return node.ParentNode == nil
 }
 
 func (node *BRTreeNode) FindBrotherNode() *BRTreeNode {
@@ -38,14 +55,21 @@ func (node *BRTreeNode) FindBrotherNode() *BRTreeNode {
 func (node *BRTreeNode) LeftHand() {
 	pRightChild := node.RChildNode
 	pParent := node.ParentNode
-	node.RChildNode = pRightChild.LChildNode
-	pRightChild.LChildNode.ParentNode = node
+	if pRightChild != nil {
+		node.RChildNode = pRightChild.LChildNode
+		if pRightChild.LChildNode != nil {
+			pRightChild.LChildNode.ParentNode = node
+		}
+	}
 	node.ParentNode = pRightChild
 	pRightChild.LChildNode = node
-	if pParent.LChildNode == node {
-		pParent.LChildNode = pRightChild
-	} else {
-		pParent.RChildNode = pRightChild
+	// 旋转节点不是根节点, 存在父节点
+	if pParent != nil {
+		if pParent.LChildNode == node {
+			pParent.LChildNode = pRightChild
+		} else {
+			pParent.RChildNode = pRightChild
+		}
 	}
 	pRightChild.ParentNode = pParent
 }
@@ -53,14 +77,21 @@ func (node *BRTreeNode) LeftHand() {
 func (node *BRTreeNode) RightHand() {
 	pLeftChild := node.LChildNode
 	pParent := node.ParentNode
-	node.LChildNode = pLeftChild.RChildNode
-	pLeftChild.RChildNode.ParentNode = node
+	if pLeftChild != nil {
+		node.LChildNode = pLeftChild.RChildNode
+		if pLeftChild.RChildNode != nil {
+			pLeftChild.RChildNode.ParentNode = node
+		}
+	}
 	node.ParentNode = pLeftChild
 	pLeftChild.RChildNode = node
-	if pParent.LChildNode == node {
-		pParent.LChildNode = pLeftChild
-	} else {
-		pParent.RChildNode = pLeftChild
+	// 旋转节点不是根节点, 存在父节点
+	if pParent != nil {
+		if pParent.LChildNode == node {
+			pParent.LChildNode = pLeftChild
+		} else {
+			pParent.RChildNode = pLeftChild
+		}
 	}
 	pLeftChild.ParentNode = pParent
 }

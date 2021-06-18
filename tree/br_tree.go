@@ -1,5 +1,7 @@
 package tree
 
+import "fmt"
+
 type BRTree struct {
 	Root *BRTreeNode
 }
@@ -26,7 +28,6 @@ func (tr *BRTree) FindNode(dst int) (node *BRTreeNode, err error) {
 func (tr *BRTree) Insert(value int) error {
 	newNode := &BRTreeNode{
 		Value: value,
-		Color: Red,
 	}
 	// 根节点为空
 	if tr.Root == nil {
@@ -40,7 +41,28 @@ func (tr *BRTree) Insert(value int) error {
 		return nil
 	}
 	newNode.ParentNode = parentNode
+	fmt.Printf("newNode %s parentNode %s\n", newNode.ToString(), parentNode.ToString())
 	return tr.insertNode(newNode, parentNode)
+}
+
+func (tr *BRTree) ToString() string {
+	var nodeArr []*BRTreeNode
+	nodeArr = append(nodeArr, tr.Root)
+	index := 0
+	for len(nodeArr) != index {
+		if nodeArr[index].LChildNode != nil {
+			nodeArr = append(nodeArr, nodeArr[index].LChildNode)
+		}
+		if nodeArr[index].RChildNode != nil {
+			nodeArr = append(nodeArr, nodeArr[index].RChildNode)
+		}
+		index++
+	}
+	result := ""
+	for _, node := range nodeArr {
+		result += fmt.Sprintf("%s ", node.ToString())
+	}
+	return result
 }
 
 func (tr *BRTree) findInsertedParentNode(node *BRTreeNode) *BRTreeNode {
@@ -72,47 +94,88 @@ func (tr *BRTree) insertNode(node, parentNode *BRTreeNode) error {
 		return nil
 	}
 	if node.Value < parentNode.Value {
+		// 插入节点是父节点的左子节点
 		node.ParentNode = parentNode
 		parentNode.LChildNode = node
 		// 父节点是黑色
 		if !parentNode.IsRedNode() {
+			node.ChangeToRedNode()
+			node.ParentNode = parentNode
+			parentNode.LChildNode = node.ParentNode
 			return nil
 		}
 		uncleNode := parentNode.FindBrotherNode()
 		if uncleNode == nil || !uncleNode.IsRedNode() {
 			// 叔叔节点不存在或者是黑色
-			parentNode.ChangeToBlackNode()
-			parentNode.ParentNode.ChangeToRedNode()
-			if parentNode == parentNode.ParentNode.LChildNode {
-				parentNode.ParentNode.RightHand()
+			ppNode := parentNode.ParentNode
+			if parentNode == ppNode.LChildNode {
+				// 父亲节点是祖父节点的左子节点
+				parentNode.ChangeToBlackNode()
+				ppNode.ChangeToRedNode()
+				node.ChangeToRedNode()
+				if ppNode.IsRoot() {
+					tr.Root = parentNode
+				}
+				ppNode.RightHand()
 			} else {
-				parentNode.ParentNode.LeftHand()
+				parentNode.RightHand()
+				node.ChangeToBlackNode()
+				ppNode.ChangeToRedNode()
+				if ppNode.IsRoot() {
+					tr.Root = parentNode
+				}
+				ppNode.LeftHand()
 			}
 		} else {
+			node.ChangeToRedNode()
 			parentNode.ChangeToBlackNode()
 			uncleNode.ChangeToBlackNode()
 			parentNode.ParentNode.ChangeToRedNode()
+			if parentNode.ParentNode.ParentNode == nil {
+				parentNode.ParentNode.ChangeToBlackNode()
+				return nil
+			}
 			return tr.insertNode(parentNode.ParentNode, parentNode.ParentNode.ParentNode)
 		}
 	} else if node.Value > parentNode.Value {
 		node.ParentNode = parentNode
 		parentNode.RChildNode = node
 		if !parentNode.IsRedNode() {
+			node.ChangeToRedNode()
+			node.ParentNode = parentNode
+			parentNode.RChildNode = node
 			return nil
 		}
 		uncleNode := parentNode.FindBrotherNode()
 		if uncleNode == nil || !uncleNode.IsRedNode() {
 			parentNode.ChangeToBlackNode()
-			parentNode.ParentNode.ChangeToRedNode()
-			if parentNode == parentNode.ParentNode.LChildNode {
-				parentNode.ParentNode.RightHand()
+			ppNode := parentNode.ParentNode
+			if parentNode == ppNode.LChildNode {
+				parentNode.LeftHand()
+				node.ChangeToBlackNode()
+				ppNode.ChangeToRedNode()
+				if ppNode.IsRoot() {
+					tr.Root = parentNode
+				}
+				ppNode.RightHand()
 			} else {
-				parentNode.ParentNode.LeftHand()
+				parentNode.ChangeToBlackNode()
+				ppNode.ChangeToRedNode()
+				node.ChangeToRedNode()
+				if ppNode.IsRoot() {
+					tr.Root = parentNode
+				}
+				ppNode.LeftHand()
 			}
 		} else {
+			node.ChangeToRedNode()
 			parentNode.ChangeToBlackNode()
 			uncleNode.ChangeToBlackNode()
 			parentNode.ParentNode.ChangeToRedNode()
+			if parentNode.ParentNode.ParentNode == nil {
+				parentNode.ParentNode.ChangeToBlackNode()
+				return nil
+			}
 			return tr.insertNode(parentNode.ParentNode, parentNode.ParentNode.ParentNode)
 		}
 	}
