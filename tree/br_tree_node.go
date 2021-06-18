@@ -44,6 +44,25 @@ func (node *BRTreeNode) IsRoot() bool {
 	return node.ParentNode == nil
 }
 
+func (node *BRTreeNode) IsLeaf() bool {
+	if node.LChildNode == nil && node.RChildNode == nil {
+		return true
+	}
+	return false
+}
+
+func (node *BRTreeNode) FindRChildMinNodeNode() *BRTreeNode {
+	result := node.RChildNode
+	for {
+		if result.LChildNode != nil {
+			result = result.LChildNode
+			continue
+		}
+		break
+	}
+	return result
+}
+
 func (node *BRTreeNode) FindBrotherNode() *BRTreeNode {
 	parentNode := node.ParentNode
 	if parentNode.LChildNode == node {

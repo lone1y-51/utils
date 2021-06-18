@@ -181,3 +181,41 @@ func (tr *BRTree) insertNode(node, parentNode *BRTreeNode) error {
 	}
 	return nil
 }
+
+func (tr *BRTree) DeleteValue(value int) error {
+	deleteNode, err := tr.FindNode(value)
+	if err != nil {
+		return err
+	}
+	parentNode := deleteNode.ParentNode
+	if deleteNode.IsLeaf() {
+		if parentNode == nil {
+		} else if parentNode.LChildNode == deleteNode {
+			parentNode.LChildNode = nil
+		} else if parentNode.RChildNode == deleteNode {
+			parentNode.RChildNode = nil
+		}
+		deleteNode = nil
+		return nil
+	} else {
+		if deleteNode.LChildNode != nil && deleteNode.RChildNode == nil {
+			deleteNode.LChildNode.ParentNode = parentNode
+			if parentNode.LChildNode == deleteNode {
+				parentNode.LChildNode = deleteNode.LChildNode
+			} else {
+				parentNode.RChildNode = deleteNode.LChildNode
+			}
+		} else if deleteNode.LChildNode == nil && deleteNode.RChildNode != nil {
+			deleteNode.RChildNode.ParentNode = parentNode
+			if parentNode.LChildNode == deleteNode {
+				parentNode.LChildNode = deleteNode.RChildNode
+			} else {
+				parentNode.RChildNode = deleteNode.RChildNode
+			}
+		} else {
+			_ = deleteNode.FindRChildMinNodeNode()
+			//TODO
+		}
+	}
+	return nil
+}
