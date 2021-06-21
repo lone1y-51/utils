@@ -47,6 +47,7 @@ func (tr *BRTree) Insert(value int) error {
 
 func (tr *BRTree) ToString() string {
 	var nodeArr []*BRTreeNode
+	tr.replaceRoot()
 	nodeArr = append(nodeArr, tr.Root)
 	index := 0
 	for len(nodeArr) != index {
@@ -63,6 +64,15 @@ func (tr *BRTree) ToString() string {
 		result += fmt.Sprintf("%s ", node.ToString())
 	}
 	return result
+}
+
+func (tr *BRTree) replaceRoot() {
+	for {
+		if tr.Root.IsRoot() {
+			return
+		}
+		tr.Root = tr.Root.ParentNode
+	}
 }
 
 func (tr *BRTree) findInsertedParentNode(node *BRTreeNode) *BRTreeNode {
@@ -189,32 +199,119 @@ func (tr *BRTree) DeleteValue(value int) error {
 	}
 	parentNode := deleteNode.ParentNode
 	if deleteNode.IsLeaf() {
-		if parentNode == nil {
-		} else if parentNode.LChildNode == deleteNode {
-			parentNode.LChildNode = nil
-		} else if parentNode.RChildNode == deleteNode {
-			parentNode.RChildNode = nil
-		}
-		deleteNode = nil
-		return nil
+		fmt.Printf("deleteNode is leaf %s \n", deleteNode.ToString())
+		return tr.balanceWithDeleteNode(deleteNode)
 	} else {
 		if deleteNode.LChildNode != nil && deleteNode.RChildNode == nil {
 			deleteNode.LChildNode.ParentNode = parentNode
 			if parentNode.LChildNode == deleteNode {
 				parentNode.LChildNode = deleteNode.LChildNode
+				deleteNode.LChildNode.ChangeToDistNodeColor(deleteNode)
 			} else {
 				parentNode.RChildNode = deleteNode.LChildNode
+				deleteNode.LChildNode.ChangeToDistNodeColor(deleteNode)
 			}
 		} else if deleteNode.LChildNode == nil && deleteNode.RChildNode != nil {
 			deleteNode.RChildNode.ParentNode = parentNode
 			if parentNode.LChildNode == deleteNode {
 				parentNode.LChildNode = deleteNode.RChildNode
+				deleteNode.RChildNode.ChangeToDistNodeColor(deleteNode)
 			} else {
 				parentNode.RChildNode = deleteNode.RChildNode
+				deleteNode.RChildNode.ChangeToDistNodeColor(deleteNode)
 			}
 		} else {
-			_ = deleteNode.FindRChildMinNodeNode()
-			//TODO
+			replaceNode := deleteNode.FindRChildMinNodeNode()
+			deleteNode.Value, replaceNode.Value = replaceNode.Value, deleteNode.Value
+			return tr.balanceWithDeleteNode(replaceNode)
+		}
+	}
+	return nil
+}
+
+func (tr *BRTree) balanceWithDeleteNode(deleteNode *BRTreeNode) error {
+	parentNode := deleteNode.ParentNode
+	if parentNode == nil {
+		return nil
+	}
+	if parentNode.LChildNode == deleteNode {
+		if !deleteNode.IsRedNode() {
+			brother := parentNode.RChildNode
+			if brother.IsRedNode() {
+				parentNode.ChangeToRedNode()
+				brother.ChangeToBlackNode()
+				parentNode.LeftHand()
+				brother = parentNode.RChildNode
+				brother.ChangeToRedNode()
+				parentNode.LChildNode = nil
+				parentNode.Value, deleteNode.Value = deleteNode.Value, parentNode.Value
+				return tr.DeleteValue(parentNode.Value)
+			} else {
+				if brother.RChildIsRed() {
+					brother.Color = parentNode.Color
+					parentNode.ChangeToBlackNode()
+					brother.RChildNode.ChangeToBlackNode()
+					parentNode.LeftHand()
+					parentNode.LChildNode = nil
+				} else if !brother.RChildIsRed() && brother.LChildIsRed() {
+					brother.ChangeToRedNode()
+					brother.LChildNode.ChangeToBlackNode()
+					brother.RightHand()
+					brother = brother.ParentNode
+
+					brother.Color = parentNode.Color
+					parentNode.ChangeToBlackNode()
+					brother.RChildNode.ChangeToBlackNode()
+					parentNode.LeftHand()
+					parentNode.LChildNode = nil
+				} else if !brother.RChildIsRed() && !brother.LChildIsRed() {
+					brother.ChangeToRedNode()
+					parentNode.Value, deleteNode.Value = deleteNode.Value, parentNode.Value
+					// 递归处理父节点
+					return tr.DeleteValue(parentNode.Value)
+				}
+			}
+		} else {
+			parentNode.LChildNode = nil
+			return nil
+		}
+	} else if parentNode.RChildNode == deleteNode {
+		if !deleteNode.IsRedNode() {
+			brother := parentNode.LChildNode
+			if brother.IsRedNode() {
+				brother.ChangeToBlackNode()
+				parentNode.ChangeToRedNode()
+				parentNode.RightHand()
+				brother = parentNode.LChildNode
+				brother.ChangeToRedNode()
+				parentNode.Value, deleteNode.Value = deleteNode.Value, parentNode.Value
+				return tr.DeleteValue(parentNode.Value)
+			} else {
+				if brother.LChildIsRed() {
+					brother.Color = parentNode.Color
+					brother.LChildNode.ChangeToBlackNode()
+					parentNode.ChangeToBlackNode()
+					parentNode.RightHand()
+					parentNode.RChildNode = nil
+				} else if !brother.LChildIsRed() && brother.RChildIsRed() {
+					brother.ChangeToRedNode()
+					brother.RChildNode.ChangeToBlackNode()
+					brother.LeftHand()
+					brother = brother.ParentNode
+
+					brother.Color = parentNode.Color
+					brother.LChildNode.ChangeToBlackNode()
+					parentNode.ChangeToBlackNode()
+					parentNode.RightHand()
+					parentNode.RChildNode = nil
+				} else if brother.LChildIsRed() && !brother.RChildIsRed() {
+					brother.ChangeToRedNode()
+					parentNode.Value, deleteNode.Value = deleteNode.Value, parentNode.Value
+					return tr.DeleteValue(parentNode.Value)
+				}
+			}
+		} else {
+			parentNode.RChildNode = nil
 		}
 	}
 	return nil

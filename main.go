@@ -20,5 +20,7 @@ func main() {
 	fmt.Println(tr.ToString())
 	_ = tr.Insert(9)
 	fmt.Println(tr.ToString())
+	_ = tr.DeleteValue(10)
+	fmt.Println(tr.ToString())
 	fmt.Println("lone1y utils")
 }

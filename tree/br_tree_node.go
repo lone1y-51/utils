@@ -17,8 +17,38 @@ const (
 	Black Color = "black"
 )
 
+func (node *BRTreeNode) IsRoot() bool {
+	return node.ParentNode == nil
+}
+
+func (node *BRTreeNode) IsLeaf() bool {
+	if node.LChildNode == nil && node.RChildNode == nil {
+		return true
+	}
+	return false
+}
+
 func (node *BRTreeNode) IsRedNode() bool {
 	return node.Color == Red
+}
+
+// 子节点不存在认为是黑色
+func (node *BRTreeNode) LChildIsRed() bool {
+	if node.LChildNode != nil && node.LChildNode.IsRedNode() {
+		return true
+	}
+	return false
+}
+
+func (node *BRTreeNode) RChildIsRed() bool {
+	if node.RChildNode != nil && node.RChildNode.IsRedNode() {
+		return true
+	}
+	return false
+}
+
+func (node *BRTreeNode) ChangeToDistNodeColor(dst *BRTreeNode) {
+	node.Color = dst.Color
 }
 
 func (node *BRTreeNode) ToString() string {
@@ -38,17 +68,6 @@ func (node *BRTreeNode) ChangeToRedNode() {
 
 func (node *BRTreeNode) ChangeToBlackNode() {
 	node.Color = Black
-}
-
-func (node *BRTreeNode) IsRoot() bool {
-	return node.ParentNode == nil
-}
-
-func (node *BRTreeNode) IsLeaf() bool {
-	if node.LChildNode == nil && node.RChildNode == nil {
-		return true
-	}
-	return false
 }
 
 func (node *BRTreeNode) FindRChildMinNodeNode() *BRTreeNode {
