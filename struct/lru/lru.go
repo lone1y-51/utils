@@ -5,24 +5,44 @@ import (
 	"github.com/pkg/errors"
 )
 
+type Options struct {
+	length int
+}
+
 type LRU struct {
 	DLink  *dlink.DLink
 	Length int
 	Cache  map[interface{}]*dlink.DLinkNode
 }
 
-func NewLRUCache(length int) (*LRU, error) {
-	link, err := dlink.NewDLink(length)
+type OptFunc func(opt *Options)
+
+func newLRUCache(opt *Options) (*LRU, error) {
+	link, err := dlink.NewDLink(opt.length)
 	if err != nil {
 		return nil, errors.Wrap(err, "new lru err")
 	}
-	cacheMap := make(map[interface{}]*dlink.DLinkNode, length)
+	cacheMap := make(map[interface{}]*dlink.DLinkNode, opt.length)
 	l := &LRU{
 		DLink:  link,
-		Length: length,
+		Length: opt.length,
 		Cache:  cacheMap,
 	}
 	return l, nil
+}
+
+func NewLRUWithOption(optFuncs ...OptFunc) (*LRU, error) {
+	opt := &Options{}
+	for _, optFunc := range optFuncs {
+		optFunc(opt)
+	}
+	return newLRUCache(opt)
+}
+
+func WithLength(length int) OptFunc {
+	return func(opt *Options) {
+		opt.length = length
+	}
 }
 
 func (l *LRU) PUT(key, value interface{}) error {
@@ -47,5 +67,5 @@ func (l *LRU) GET(key interface{}) (interface{}, error) {
 		_ = l.DLink.MoveNodeToHead(node)
 		return node.Value, nil
 	}
-	return nil, errors.New("key not found")
+	return nil, ErrLRUKeyNotFound
 }

@@ -1,5 +1,9 @@
 package dlink
 
+type Options struct {
+	length int
+}
+
 type DLinkNode struct {
 	Prev  *DLinkNode
 	Next  *DLinkNode
@@ -14,9 +18,25 @@ type DLink struct {
 	Count  int
 }
 
-func NewDLink(length int) (*DLink, error) {
+type OptFunc func(opt *Options)
+
+func NewDLinkWithOptions(optFuncs ...OptFunc) {
+	opt := &Options{}
+	for _, optFunc := range optFuncs {
+		optFunc(opt)
+	}
+	return newDLink(opt)
+}
+
+func WithLength(length int) OptFunc {
+	return func(opt *Options) {
+		opt.length = length
+	}
+}
+
+func newDLink(opt *Options) (*DLink, error) {
 	link := &DLink{
-		Length: length,
+		Length: opt.length,
 		Head:   &DLinkNode{},
 		Tail:   &DLinkNode{},
 		Count:  0,
