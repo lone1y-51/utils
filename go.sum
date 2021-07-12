@@ -1,2 +1,4 @@
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/qjpcpu/log v0.0.0-20190430025042-94db3a79b5be h1:qEq/PoWA8t53h51P8ZEDkEH0jWCZQuZPJbWJ9UJit+E=
 github.com/qjpcpu/log v0.0.0-20190430025042-94db3a79b5be/go.mod h1:jSwIqnFDmwbRrvYLvEVh0gIjUNnbHfFva2P7Iv4J9So=
