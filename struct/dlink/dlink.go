@@ -8,6 +8,7 @@ type DLinkNode struct {
 	Prev  *DLinkNode
 	Next  *DLinkNode
 	Value interface{}
+	Key   interface{}
 }
 
 // DLink is a doubly link
@@ -20,7 +21,7 @@ type DLink struct {
 
 type OptFunc func(opt *Options)
 
-func NewDLinkWithOptions(optFuncs ...OptFunc) {
+func NewDLinkWithOptions(optFuncs ...OptFunc) (*DLink, error) {
 	opt := &Options{}
 	for _, optFunc := range optFuncs {
 		optFunc(opt)
@@ -55,12 +56,13 @@ func (l *DLink) IsEmpty() bool {
 }
 
 // Add to link tail
-func (l *DLink) Add(value interface{}) (*DLinkNode, error) {
+func (l *DLink) Add(key, value interface{}) (*DLinkNode, error) {
 	if l.IsFull() {
 		return nil, ErrDLinkIsFull
 	}
 	node := &DLinkNode{
 		Value: value,
+		Key:   key,
 	}
 	node.Next = l.Tail
 	node.Prev = l.Tail.Prev
@@ -70,12 +72,13 @@ func (l *DLink) Add(value interface{}) (*DLinkNode, error) {
 	return node, nil
 }
 
-func (l *DLink) AddToHead(value interface{}) (*DLinkNode, error) {
+func (l *DLink) AddToHead(key, value interface{}) (*DLinkNode, error) {
 	if l.IsFull() {
 		return nil, ErrDLinkIsFull
 	}
 	node := &DLinkNode{
 		Value: value,
+		Key:   key,
 	}
 	node.Prev = l.Head
 	node.Next = l.Head.Next
@@ -85,13 +88,14 @@ func (l *DLink) AddToHead(value interface{}) (*DLinkNode, error) {
 	return node, nil
 }
 
-func (l *DLink) RemoveTail() error {
+func (l *DLink) RemoveTail() (*DLinkNode, error) {
 	if l.IsEmpty() {
-		return ErrDLinkIsEmpty
+		return nil, ErrDLinkIsEmpty
 	}
 	tailNode := l.Tail.Prev
 	l.removeNode(tailNode)
-	return nil
+	l.Count--
+	return tailNode, nil
 }
 
 func (l *DLink) MoveNodeToHead(node *DLinkNode) error {
@@ -103,6 +107,8 @@ func (l *DLink) MoveNodeToHead(node *DLinkNode) error {
 func (l *DLink) removeNode(node *DLinkNode) {
 	node.Next.Prev = node.Prev
 	node.Prev.Next = node.Next
+	node.Prev = nil
+	node.Next = nil
 }
 
 func (l *DLink) moveToHead(node *DLinkNode) {
