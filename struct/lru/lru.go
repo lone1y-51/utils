@@ -18,7 +18,7 @@ type LRU struct {
 type OptFunc func(opt *Options)
 
 func newLRUCache(opt *Options) (*LRU, error) {
-	link, err := dlink.NewDLink(opt.length)
+	link, err := dlink.NewDLinkWithOptions(dlink.WithLength(opt.length))
 	if err != nil {
 		return nil, errors.Wrap(err, "new lru err")
 	}
@@ -52,9 +52,10 @@ func (l *LRU) PUT(key, value interface{}) error {
 		return nil
 	}
 	if l.DLink.IsFull() {
-		_ = l.DLink.RemoveTail()
+		tail, _ := l.DLink.RemoveTail()
+		delete(l.Cache, tail.Key)
 	}
-	node, err := l.DLink.AddToHead(value)
+	node, err := l.DLink.AddToHead(key, value)
 	if err != nil {
 		return err
 	}
