@@ -7,8 +7,8 @@ type Options struct {
 type DLinkNode struct {
 	Prev  *DLinkNode
 	Next  *DLinkNode
-	Value interface{}
-	Key   interface{}
+	Value any
+	Key   any
 }
 
 // DLink is a doubly link
@@ -56,7 +56,7 @@ func (l *DLink) IsEmpty() bool {
 }
 
 // Add to link tail
-func (l *DLink) Add(key, value interface{}) (*DLinkNode, error) {
+func (l *DLink) Add(key, value any) (*DLinkNode, error) {
 	if l.IsFull() {
 		return nil, ErrDLinkIsFull
 	}
@@ -72,7 +72,7 @@ func (l *DLink) Add(key, value interface{}) (*DLinkNode, error) {
 	return node, nil
 }
 
-func (l *DLink) AddToHead(key, value interface{}) (*DLinkNode, error) {
+func (l *DLink) AddToHead(key, value any) (*DLinkNode, error) {
 	if l.IsFull() {
 		return nil, ErrDLinkIsFull
 	}

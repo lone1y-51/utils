@@ -1,12 +1,16 @@
 package tree
 
-import "fmt"
+import (
+	"fmt"
 
-type BRTree struct {
-	Root *BRTreeNode
+	"github.com/lone1y-51/utils/define"
+)
+
+type BRTree[T define.Sorted] struct {
+	Root *BRTreeNode[T]
 }
 
-func (tr *BRTree) FindNode(dst int) (node *BRTreeNode, err error) {
+func (tr *BRTree[T]) FindNode(dst T) (node *BRTreeNode[T], err error) {
 	if tr.Root == nil {
 		return nil, ErrEmptyTree
 	}
@@ -25,8 +29,8 @@ func (tr *BRTree) FindNode(dst int) (node *BRTreeNode, err error) {
 	return nil, ErrNotFound
 }
 
-func (tr *BRTree) Insert(value int) error {
-	newNode := &BRTreeNode{
+func (tr *BRTree[T]) Insert(value T) error {
+	newNode := &BRTreeNode[T]{
 		Value: value,
 	}
 	// 根节点为空
@@ -45,8 +49,8 @@ func (tr *BRTree) Insert(value int) error {
 	return tr.insertNode(newNode, parentNode)
 }
 
-func (tr *BRTree) ToString() string {
-	var nodeArr []*BRTreeNode
+func (tr *BRTree[T]) ToString() string {
+	var nodeArr []*BRTreeNode[T]
 	tr.replaceRoot()
 	nodeArr = append(nodeArr, tr.Root)
 	index := 0
@@ -66,7 +70,7 @@ func (tr *BRTree) ToString() string {
 	return result
 }
 
-func (tr *BRTree) replaceRoot() {
+func (tr *BRTree[T]) replaceRoot() {
 	for {
 		if tr.Root.IsRoot() {
 			return
@@ -75,7 +79,7 @@ func (tr *BRTree) replaceRoot() {
 	}
 }
 
-func (tr *BRTree) findInsertedParentNode(node *BRTreeNode) *BRTreeNode {
+func (tr *BRTree[T]) findInsertedParentNode(node *BRTreeNode[T]) *BRTreeNode[T] {
 	parentNode := tr.Root
 	for {
 		if node.Value == parentNode.Value {
@@ -97,7 +101,7 @@ func (tr *BRTree) findInsertedParentNode(node *BRTreeNode) *BRTreeNode {
 	return parentNode
 }
 
-func (tr *BRTree) insertNode(node, parentNode *BRTreeNode) error {
+func (tr *BRTree[T]) insertNode(node, parentNode *BRTreeNode[T]) error {
 	// 表示是根节点
 	if parentNode == nil {
 		node.ChangeToBlackNode()
@@ -192,7 +196,7 @@ func (tr *BRTree) insertNode(node, parentNode *BRTreeNode) error {
 	return nil
 }
 
-func (tr *BRTree) DeleteValue(value int) error {
+func (tr *BRTree[T]) DeleteValue(value T) error {
 	deleteNode, err := tr.FindNode(value)
 	if err != nil {
 		return err
@@ -229,7 +233,7 @@ func (tr *BRTree) DeleteValue(value int) error {
 	return nil
 }
 
-func (tr *BRTree) balanceWithDeleteNode(deleteNode *BRTreeNode) error {
+func (tr *BRTree[T]) balanceWithDeleteNode(deleteNode *BRTreeNode[T]) error {
 	parentNode := deleteNode.ParentNode
 	if parentNode == nil {
 		return nil

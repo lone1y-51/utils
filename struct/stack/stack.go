@@ -7,14 +7,14 @@ type Option struct {
 type OptFunc func(opt *Option)
 
 type Stack struct {
-	data   []interface{}
+	data   []any
 	length int
 }
 
 func newStack(opt *Option) *Stack {
 	s := &Stack{}
 	s.length = opt.length
-	s.data = make([]interface{}, 0)
+	s.data = make([]any, 0)
 	return s
 }
 
@@ -36,7 +36,7 @@ func (s *Stack) Count() int {
 	return len(s.data)
 }
 
-func (s *Stack) Push(data interface{}) error {
+func (s *Stack) Push(data any) error {
 	if len(s.data) == s.length && s.length != 0 {
 		return ErrStackIsFull
 	}
@@ -44,7 +44,7 @@ func (s *Stack) Push(data interface{}) error {
 	return nil
 }
 
-func (s *Stack) Pop() (interface{}, error) {
+func (s *Stack) Pop() (any, error) {
 	if len(s.data) == 0 {
 		return nil, ErrStackIsEmpty
 	}
@@ -55,5 +55,5 @@ func (s *Stack) Pop() (interface{}, error) {
 }
 
 func (s *Stack) Clear() {
-	s.data = make([]interface{}, 0)
+	s.data = make([]any, 0)
 }

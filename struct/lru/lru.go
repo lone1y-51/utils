@@ -12,7 +12,7 @@ type Options struct {
 type LRU struct {
 	DLink  *dlink.DLink
 	Length int
-	Cache  map[interface{}]*dlink.DLinkNode
+	Cache  map[any]*dlink.DLinkNode
 }
 
 type OptFunc func(opt *Options)
@@ -22,7 +22,7 @@ func newLRUCache(opt *Options) (*LRU, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "new lru err")
 	}
-	cacheMap := make(map[interface{}]*dlink.DLinkNode, opt.length)
+	cacheMap := make(map[any]*dlink.DLinkNode, opt.length)
 	l := &LRU{
 		DLink:  link,
 		Length: opt.length,
@@ -45,7 +45,7 @@ func WithLength(length int) OptFunc {
 	}
 }
 
-func (l *LRU) PUT(key, value interface{}) error {
+func (l *LRU) Put(key, value any) error {
 	if node, ok := l.Cache[key]; ok {
 		node.Value = value
 		_ = l.DLink.MoveNodeToHead(node)
@@ -63,7 +63,7 @@ func (l *LRU) PUT(key, value interface{}) error {
 	return nil
 }
 
-func (l *LRU) GET(key interface{}) (interface{}, error) {
+func (l *LRU) Get(key any) (any, error) {
 	if node, ok := l.Cache[key]; ok {
 		_ = l.DLink.MoveNodeToHead(node)
 		return node.Value, nil

@@ -1,15 +1,22 @@
 package tree
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/lone1y-51/utils/define"
+)
 
 type Color string
 
-type BRTreeNode struct {
-	Value      int
+type BRTreeNode[T define.Sorted] struct {
+	Value      T
 	Color      Color
-	LChildNode *BRTreeNode // left child node
-	RChildNode *BRTreeNode // right child node
-	ParentNode *BRTreeNode // parent node
+	LChildNode *BRTreeNode[T] // left child node
+	RChildNode *BRTreeNode[T] // right child node
+	ParentNode *BRTreeNode[T] // parent node
+	// LChildNode *BRTreeNode // left child node
+	// RChildNode *BRTreeNode // right child node
+	// ParentNode *BRTreeNode // parent node
 }
 
 const (
@@ -17,60 +24,60 @@ const (
 	Black Color = "black"
 )
 
-func (node *BRTreeNode) IsRoot() bool {
+func (node *BRTreeNode[T]) IsRoot() bool {
 	return node.ParentNode == nil
 }
 
-func (node *BRTreeNode) IsLeaf() bool {
+func (node *BRTreeNode[T]) IsLeaf() bool {
 	if node.LChildNode == nil && node.RChildNode == nil {
 		return true
 	}
 	return false
 }
 
-func (node *BRTreeNode) IsRedNode() bool {
+func (node *BRTreeNode[T]) IsRedNode() bool {
 	return node.Color == Red
 }
 
 // 子节点不存在认为是黑色
-func (node *BRTreeNode) LChildIsRed() bool {
+func (node *BRTreeNode[T]) LChildIsRed() bool {
 	if node.LChildNode != nil && node.LChildNode.IsRedNode() {
 		return true
 	}
 	return false
 }
 
-func (node *BRTreeNode) RChildIsRed() bool {
+func (node *BRTreeNode[T]) RChildIsRed() bool {
 	if node.RChildNode != nil && node.RChildNode.IsRedNode() {
 		return true
 	}
 	return false
 }
 
-func (node *BRTreeNode) ChangeToDistNodeColor(dst *BRTreeNode) {
+func (node *BRTreeNode[T]) ChangeToDistNodeColor(dst *BRTreeNode[T]) {
 	node.Color = dst.Color
 }
 
-func (node *BRTreeNode) ToString() string {
-	result := fmt.Sprintf("%s %d ", node.Color, node.Value)
+func (node *BRTreeNode[T]) ToString() string {
+	result := fmt.Sprintf("%s %v ", node.Color, node.Value)
 	if node.LChildNode != nil {
-		result = result + fmt.Sprintf("[left child %s %d] ", node.LChildNode.Color, node.LChildNode.Value)
+		result = result + fmt.Sprintf("[left child %s %v] ", node.LChildNode.Color, node.LChildNode.Value)
 	}
 	if node.RChildNode != nil {
-		result = result + fmt.Sprintf("[right child %s %d] ", node.RChildNode.Color, node.RChildNode.Value)
+		result = result + fmt.Sprintf("[right child %s %v] ", node.RChildNode.Color, node.RChildNode.Value)
 	}
 	return result
 }
 
-func (node *BRTreeNode) ChangeToRedNode() {
+func (node *BRTreeNode[T]) ChangeToRedNode() {
 	node.Color = Red
 }
 
-func (node *BRTreeNode) ChangeToBlackNode() {
+func (node *BRTreeNode[T]) ChangeToBlackNode() {
 	node.Color = Black
 }
 
-func (node *BRTreeNode) FindRChildMinNodeNode() *BRTreeNode {
+func (node *BRTreeNode[T]) FindRChildMinNodeNode() *BRTreeNode[T] {
 	result := node.RChildNode
 	for {
 		if result.LChildNode != nil {
@@ -82,7 +89,7 @@ func (node *BRTreeNode) FindRChildMinNodeNode() *BRTreeNode {
 	return result
 }
 
-func (node *BRTreeNode) FindBrotherNode() *BRTreeNode {
+func (node *BRTreeNode[T]) FindBrotherNode() *BRTreeNode[T] {
 	parentNode := node.ParentNode
 	if parentNode.LChildNode == node {
 		return parentNode.RChildNode
@@ -90,7 +97,7 @@ func (node *BRTreeNode) FindBrotherNode() *BRTreeNode {
 	return parentNode.LChildNode
 }
 
-func (node *BRTreeNode) LeftHand() {
+func (node *BRTreeNode[T]) LeftHand() {
 	pRightChild := node.RChildNode
 	pParent := node.ParentNode
 	if pRightChild != nil {
@@ -112,7 +119,7 @@ func (node *BRTreeNode) LeftHand() {
 	pRightChild.ParentNode = pParent
 }
 
-func (node *BRTreeNode) RightHand() {
+func (node *BRTreeNode[T]) RightHand() {
 	pLeftChild := node.LChildNode
 	pParent := node.ParentNode
 	if pLeftChild != nil {

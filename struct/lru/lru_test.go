@@ -7,31 +7,31 @@ func Test_LRU(t *testing.T) {
 	if err != nil {
 		t.Error("new lru err")
 	}
-	err = l.PUT("1", "abc")
+	err = l.Put("1", "abc")
 	if err != nil && err != ErrLRUIsFull {
-		t.Errorf("lru put err %v", err)
+		t.Errorf("lru Put err %v", err)
 	}
-	err = l.PUT("2", "abcd")
+	err = l.Put("2", "abcd")
 	if err != nil && err != ErrLRUIsFull {
-		t.Errorf("lru put err %v", err)
+		t.Errorf("lru Put err %v", err)
 	}
-	err = l.PUT("3", "abcde")
+	err = l.Put("3", "abcde")
 	if err != nil && err != ErrLRUIsFull {
-		t.Errorf("lru put err %v", err)
+		t.Errorf("lru Put err %v", err)
 	}
-	v, err := l.GET("2")
+	v, err := l.Get("2")
 	if (err != nil && err != ErrLRUKeyNotFound) || v.(string) != "abcd" {
-		t.Errorf("lru get err %v", err)
+		t.Errorf("lru Get err %v", err)
 	}
-	v, err = l.GET("3")
+	v, err = l.Get("3")
 	if (err != nil && err != ErrLRUKeyNotFound) || v.(string) != "abcde" {
-		t.Errorf("lru get err %v", err)
+		t.Errorf("lru Get err %v", err)
 	}
-	err = l.PUT("4", "ab")
+	err = l.Put("4", "ab")
 	if err != nil && err != ErrLRUIsFull {
-		t.Errorf("lru put err %v", err)
+		t.Errorf("lru Put err %v", err)
 	}
-	v, err = l.GET("1")
+	v, err = l.Get("1")
 	if err != ErrLRUKeyNotFound {
 		t.Errorf("lru delete old key err %v, v %v", err, v)
 	}

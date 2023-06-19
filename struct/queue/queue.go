@@ -5,7 +5,7 @@ type Option struct {
 }
 
 type Queue struct {
-	data   []interface{}
+	data   []any
 	length int
 }
 
@@ -31,7 +31,7 @@ func NewQueueWithOptions(opts ...OptFunc) *Queue {
 	return newQueue(option)
 }
 
-func (q *Queue) Push(d interface{}) error {
+func (q *Queue) Push(d any) error {
 	if q.length != 0 && len(q.data) == q.length {
 		return ErrQueueIsFull
 	}
@@ -39,7 +39,7 @@ func (q *Queue) Push(d interface{}) error {
 	return nil
 }
 
-func (q *Queue) Pop() (interface{}, error) {
+func (q *Queue) Pop() (any, error) {
 	if len(q.data) == 0 {
 		return nil, ErrQueueIsEmpty
 	}
